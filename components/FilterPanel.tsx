@@ -219,8 +219,102 @@ export default function FilterPanel({ filters, onFiltersChange, selectedTab }: F
               />
             </div>
 
+            {/* Preset Filter Suggestions */}
+            <div className="bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-amber-900/20 dark:via-orange-900/20 dark:to-yellow-900/20 rounded-xl p-4 border-2 border-amber-200 dark:border-amber-800/30 shadow-md">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="bg-gradient-to-br from-amber-400 to-orange-500 p-1.5 rounded-lg">
+                  <Filter className="w-4 h-4 text-white" />
+                </div>
+                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">
+                  Quick Filter Presets
+                </label>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <button
+                  onClick={() => {
+                    updateFilter('minIV', '40')
+                    updateFilter('maxIV', '')
+                    updateFilter('minDelta', '')
+                    updateFilter('maxDelta', '')
+                  }}
+                  className="text-xs px-3 py-2 bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-lg font-semibold hover:from-red-600 hover:to-rose-700 transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-1"
+                >
+                  <span>🔥</span>
+                  <span>High IV</span>
+                  <span className="text-[10px] opacity-90">(&gt;40%)</span>
+                </button>
+                <button
+                  onClick={() => {
+                    updateFilter('minIV', '')
+                    updateFilter('maxIV', '25')
+                    updateFilter('minDelta', '')
+                    updateFilter('maxDelta', '')
+                  }}
+                  className="text-xs px-3 py-2 bg-gradient-to-r from-blue-500 to-cyan-600 text-white rounded-lg font-semibold hover:from-blue-600 hover:to-cyan-700 transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-1"
+                >
+                  <span>❄️</span>
+                  <span>Low IV</span>
+                  <span className="text-[10px] opacity-90">(&lt;25%)</span>
+                </button>
+                <button
+                  onClick={() => {
+                    updateFilter('minIV', '')
+                    updateFilter('maxIV', '')
+                    updateFilter('minDelta', '0.7')
+                    updateFilter('maxDelta', '')
+                  }}
+                  className="text-xs px-3 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg font-semibold hover:from-green-600 hover:to-emerald-700 transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-1"
+                >
+                  <span>📈</span>
+                  <span>High Delta</span>
+                  <span className="text-[10px] opacity-90">(&gt;0.7)</span>
+                </button>
+                <button
+                  onClick={() => {
+                    updateFilter('minIV', '')
+                    updateFilter('maxIV', '')
+                    updateFilter('minDelta', '')
+                    updateFilter('maxDelta', '0.3')
+                  }}
+                  className="text-xs px-3 py-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-lg font-semibold hover:from-purple-600 hover:to-indigo-700 transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-1"
+                >
+                  <span>📉</span>
+                  <span>Low Delta</span>
+                  <span className="text-[10px] opacity-90">(&lt;0.3)</span>
+                </button>
+                <button
+                  onClick={() => {
+                    updateFilter('minIV', '40')
+                    updateFilter('maxIV', '')
+                    updateFilter('minDelta', '')
+                    updateFilter('maxDelta', '0.3')
+                  }}
+                  className="text-xs px-3 py-2 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-lg font-semibold hover:from-orange-600 hover:to-red-700 transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-1"
+                >
+                  <span>💎</span>
+                  <span>High IV + Low Delta</span>
+                </button>
+                <button
+                  onClick={() => {
+                    updateFilter('minIV', '')
+                    updateFilter('maxIV', '25')
+                    updateFilter('minDelta', '0.7')
+                    updateFilter('maxDelta', '')
+                  }}
+                  className="text-xs px-3 py-2 bg-gradient-to-r from-teal-500 to-cyan-600 text-white rounded-lg font-semibold hover:from-teal-600 hover:to-cyan-700 transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-1"
+                >
+                  <span>🎯</span>
+                  <span>Low IV + High Delta</span>
+                </button>
+              </div>
+              <p className="text-xs text-slate-600 dark:text-slate-400 mt-3 text-center">
+                💡 Quick filters for common trading strategies
+              </p>
+            </div>
+
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-2">
+                <span>📊</span>
                 Implied Volatility (IV) Range (%)
               </label>
               <div className="grid grid-cols-2 gap-2">
@@ -229,14 +323,14 @@ export default function FilterPanel({ filters, onFiltersChange, selectedTab }: F
                   placeholder="Min %"
                   value={filters.minIV}
                   onChange={(e) => updateFilter('minIV', e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  className="w-full px-3 py-2.5 border-2 border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all shadow-sm hover:shadow-md"
                 />
                 <input
                   type="number"
                   placeholder="Max %"
                   value={filters.maxIV}
                   onChange={(e) => updateFilter('maxIV', e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  className="w-full px-3 py-2.5 border-2 border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all shadow-sm hover:shadow-md"
                 />
               </div>
               <div className="flex flex-wrap gap-2 mt-2">
@@ -244,7 +338,7 @@ export default function FilterPanel({ filters, onFiltersChange, selectedTab }: F
                   <button
                     key={`iv-min-${preset}`}
                     onClick={() => updateFilter('minIV', preset)}
-                    className="text-xs px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded hover:bg-primary-100 dark:hover:bg-primary-900/30 hover:text-primary-700 dark:hover:text-primary-300 transition-colors"
+                    className="text-xs px-2.5 py-1.5 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-primary-100 dark:hover:bg-primary-900/30 hover:text-primary-700 dark:hover:text-primary-300 transition-colors font-medium shadow-sm"
                   >
                     Min {preset}%
                   </button>
@@ -253,7 +347,7 @@ export default function FilterPanel({ filters, onFiltersChange, selectedTab }: F
                   <button
                     key={`iv-max-${preset}`}
                     onClick={() => updateFilter('maxIV', preset)}
-                    className="text-xs px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded hover:bg-primary-100 dark:hover:bg-primary-900/30 hover:text-primary-700 dark:hover:text-primary-300 transition-colors"
+                    className="text-xs px-2.5 py-1.5 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-primary-100 dark:hover:bg-primary-900/30 hover:text-primary-700 dark:hover:text-primary-300 transition-colors font-medium shadow-sm"
                   >
                     Max {preset}%
                   </button>
@@ -262,7 +356,8 @@ export default function FilterPanel({ filters, onFiltersChange, selectedTab }: F
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-2">
+                <span>⚡</span>
                 Delta Range
               </label>
               <div className="grid grid-cols-2 gap-2">
@@ -272,7 +367,7 @@ export default function FilterPanel({ filters, onFiltersChange, selectedTab }: F
                   placeholder="Min"
                   value={filters.minDelta}
                   onChange={(e) => updateFilter('minDelta', e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  className="w-full px-3 py-2.5 border-2 border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all shadow-sm hover:shadow-md"
                 />
                 <input
                   type="number"
@@ -280,7 +375,7 @@ export default function FilterPanel({ filters, onFiltersChange, selectedTab }: F
                   placeholder="Max"
                   value={filters.maxDelta}
                   onChange={(e) => updateFilter('maxDelta', e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  className="w-full px-3 py-2.5 border-2 border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all shadow-sm hover:shadow-md"
                 />
               </div>
               <div className="flex flex-wrap gap-2 mt-2">
@@ -288,7 +383,7 @@ export default function FilterPanel({ filters, onFiltersChange, selectedTab }: F
                   <button
                     key={`delta-min-${preset}`}
                     onClick={() => updateFilter('minDelta', preset)}
-                    className="text-xs px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded hover:bg-primary-100 dark:hover:bg-primary-900/30 hover:text-primary-700 dark:hover:text-primary-300 transition-colors"
+                    className="text-xs px-2.5 py-1.5 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-primary-100 dark:hover:bg-primary-900/30 hover:text-primary-700 dark:hover:text-primary-300 transition-colors font-medium shadow-sm"
                   >
                     Min {preset}
                   </button>
@@ -297,7 +392,7 @@ export default function FilterPanel({ filters, onFiltersChange, selectedTab }: F
                   <button
                     key={`delta-min-neg-${preset}`}
                     onClick={() => updateFilter('minDelta', preset)}
-                    className="text-xs px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded hover:bg-primary-100 dark:hover:bg-primary-900/30 hover:text-primary-700 dark:hover:text-primary-300 transition-colors"
+                    className="text-xs px-2.5 py-1.5 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-primary-100 dark:hover:bg-primary-900/30 hover:text-primary-700 dark:hover:text-primary-300 transition-colors font-medium shadow-sm"
                   >
                     Min {preset}
                   </button>
@@ -306,7 +401,7 @@ export default function FilterPanel({ filters, onFiltersChange, selectedTab }: F
                   <button
                     key={`delta-max-${preset}`}
                     onClick={() => updateFilter('maxDelta', preset)}
-                    className="text-xs px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded hover:bg-primary-100 dark:hover:bg-primary-900/30 hover:text-primary-700 dark:hover:text-primary-300 transition-colors"
+                    className="text-xs px-2.5 py-1.5 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-primary-100 dark:hover:bg-primary-900/30 hover:text-primary-700 dark:hover:text-primary-300 transition-colors font-medium shadow-sm"
                   >
                     Max {preset}
                   </button>
@@ -315,7 +410,7 @@ export default function FilterPanel({ filters, onFiltersChange, selectedTab }: F
                   <button
                     key={`delta-max-neg-${preset}`}
                     onClick={() => updateFilter('maxDelta', preset)}
-                    className="text-xs px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded hover:bg-primary-100 dark:hover:bg-primary-900/30 hover:text-primary-700 dark:hover:text-primary-300 transition-colors"
+                    className="text-xs px-2.5 py-1.5 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-primary-100 dark:hover:bg-primary-900/30 hover:text-primary-700 dark:hover:text-primary-300 transition-colors font-medium shadow-sm"
                   >
                     Max {preset}
                   </button>
