@@ -27,6 +27,7 @@ export interface Option {
 }
 
 export interface FilterCriteria {
+  searchText: string
   minPrice: string
   maxPrice: string
   minVolume: string

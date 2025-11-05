@@ -1,5 +1,5 @@
 import { FilterCriteria } from '@/types'
-import { Filter, X } from 'lucide-react'
+import { Filter, X, Search } from 'lucide-react'
 
 interface FilterPanelProps {
   filters: FilterCriteria
@@ -28,6 +28,7 @@ export default function FilterPanel({ filters, onFiltersChange, selectedTab }: F
 
   const clearFilters = () => {
     onFiltersChange({
+      searchText: '',
       minPrice: '',
       maxPrice: '',
       minVolume: '',
@@ -67,6 +68,22 @@ export default function FilterPanel({ filters, onFiltersChange, selectedTab }: F
       <div className="flex-1 overflow-y-auto pr-2 -mr-2 space-y-4">
         {selectedTab === 'stocks' ? (
           <>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                Search Symbol or Name
+              </label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="e.g., AAPL or Apple"
+                  value={filters.searchText}
+                  onChange={(e) => updateFilter('searchText', e.target.value)}
+                  className="w-full pl-10 pr-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                 Price Range

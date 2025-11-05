@@ -2,9 +2,11 @@
 
 import { useState } from 'react'
 import Dashboard from '@/components/Dashboard'
-import { BookOpen, TrendingUp, TrendingDown, Minus, Zap } from 'lucide-react'
+import StrategyCard from '@/components/StrategyCard'
+import { BookOpen, TrendingUp, TrendingDown, Minus, Zap, Search } from 'lucide-react'
 
-const strategies = [
+// Strategy definitions with profit calculation functions
+const strategiesData = [
   {
     category: 'Basic Strategies',
     icon: BookOpen,
@@ -16,6 +18,22 @@ const strategies = [
         reward: 'Unlimited',
         description: 'Buy a call option. Profit if stock price rises above strike + premium.',
         bestFor: 'Strong bullish conviction',
+        scenarios: {
+          stockRises: 'If stock rises above strike + premium ($190 in this example), you profit. The higher the stock goes, the more you profit. Your profit is unlimited.',
+          stockFalls: 'If stock falls below the strike price, you lose the entire premium paid ($5). The option expires worthless.',
+          stockStaysSame: 'If stock stays at or below the strike price, you lose the premium paid. Time decay works against you.',
+        },
+        example: {
+          stock: 'AAPL',
+          stockPrice: 180,
+          strike: 185,
+          premium: 5,
+        },
+        calculateProfit: (stockPrice: number, params: any) => {
+          const { strike, premium } = params
+          if (stockPrice <= strike) return -premium
+          return stockPrice - strike - premium
+        },
       },
       {
         name: 'Long Put',
@@ -24,6 +42,22 @@ const strategies = [
         reward: 'High',
         description: 'Buy a put option. Profit if stock price falls below strike - premium.',
         bestFor: 'Bearish outlook or portfolio protection',
+        scenarios: {
+          stockRises: 'If stock rises above the strike price, you lose the entire premium paid ($8). The option expires worthless.',
+          stockFalls: 'If stock falls below strike - premium ($237 in this example), you profit. The lower the stock goes, the more you profit. Maximum profit if stock goes to $0.',
+          stockStaysSame: 'If stock stays at or above the strike price, you lose the premium paid. Time decay erodes the option value.',
+        },
+        example: {
+          stock: 'TSLA',
+          stockPrice: 250,
+          strike: 245,
+          premium: 8,
+        },
+        calculateProfit: (stockPrice: number, params: any) => {
+          const { strike, premium } = params
+          if (stockPrice >= strike) return -premium
+          return strike - stockPrice - premium
+        },
       },
       {
         name: 'Covered Call',
@@ -32,6 +66,27 @@ const strategies = [
         reward: 'Limited',
         description: 'Own stock and sell call option. Generate income while limiting upside.',
         bestFor: 'Generating income on owned stocks',
+        scenarios: {
+          stockRises: 'If stock rises above strike ($390), you keep the premium ($6) and stock profit up to strike, but you miss gains above strike. Stock gets called away at $390.',
+          stockFalls: 'If stock falls, you keep the premium ($6) which partially offsets your stock loss. However, you still lose money if stock falls significantly below your purchase price.',
+          stockStaysSame: 'If stock stays near current price, you keep the premium ($6) as income. This is the ideal scenario - you earn premium without losing stock.',
+        },
+        example: {
+          stock: 'MSFT',
+          stockPrice: 380,
+          strike: 390,
+          premium: 6,
+          stockOwned: true,
+        },
+        calculateProfit: (stockPrice: number, params: any) => {
+          const { strike, premium, stockPrice: entryPrice } = params
+          const stockProfit = stockPrice - entryPrice
+          let optionProfit = premium
+          if (stockPrice > strike) {
+            optionProfit = premium - (stockPrice - strike)
+          }
+          return stockProfit + optionProfit
+        },
       },
       {
         name: 'Protective Put',
@@ -40,6 +95,27 @@ const strategies = [
         reward: 'Unlimited',
         description: 'Own stock and buy put option as insurance against downside.',
         bestFor: 'Protecting long stock positions',
+        scenarios: {
+          stockRises: 'If stock rises, you participate in all upside gains. You only lose the premium paid ($4) for insurance. Net profit = stock gain - $4.',
+          stockFalls: 'If stock falls below strike ($140), your put protects you. Loss is limited to (entry price - strike + premium) = $9 max loss regardless of how far stock falls.',
+          stockStaysSame: 'If stock stays flat, you lose the premium paid ($4) for the insurance. This is the cost of protection.',
+        },
+        example: {
+          stock: 'GOOGL',
+          stockPrice: 145,
+          strike: 140,
+          premium: 4,
+          stockOwned: true,
+        },
+        calculateProfit: (stockPrice: number, params: any) => {
+          const { strike, premium, stockPrice: entryPrice } = params
+          const stockProfit = stockPrice - entryPrice
+          let putProfit = -premium
+          if (stockPrice < strike) {
+            putProfit = strike - stockPrice - premium
+          }
+          return stockProfit + putProfit
+        },
       },
     ],
   },
@@ -54,6 +130,26 @@ const strategies = [
         reward: 'Limited',
         description: 'Buy lower strike call, sell higher strike call. Lower cost than long call.',
         bestFor: 'Moderate bullish moves with defined risk',
+        scenarios: {
+          stockRises: 'If stock rises above higher strike ($195), you reach max profit. Profit = (strike2 - strike) - net cost = $10 - $3 = $7. Profit capped at higher strike.',
+          stockFalls: 'If stock falls below lower strike ($185), you lose the net premium paid ($3). Both calls expire worthless.',
+          stockStaysSame: 'If stock stays between strikes, you lose net premium. Need stock above lower strike to profit.',
+        },
+        example: {
+          stock: 'AAPL',
+          stockPrice: 180,
+          strike: 185,
+          premium: 5,
+          strike2: 195,
+          premium2: 2,
+        },
+        calculateProfit: (stockPrice: number, params: any) => {
+          const { strike, premium, strike2, premium2 } = params
+          const netCost = premium - premium2
+          if (stockPrice <= strike) return -netCost
+          if (stockPrice >= strike2) return strike2 - strike - netCost
+          return stockPrice - strike - netCost
+        },
       },
       {
         name: 'Bull Put Spread',
@@ -62,14 +158,26 @@ const strategies = [
         reward: 'Limited',
         description: 'Sell higher strike put, buy lower strike put. Collect premium.',
         bestFor: 'Bullish with limited move expected',
-      },
-      {
-        name: 'Call Debit Spread',
-        direction: 'Bullish',
-        risk: 'Limited',
-        reward: 'Limited',
-        description: 'Similar to Bull Call Spread. Uses debit (buying lower, selling higher).',
-        bestFor: 'Bullish outlook with cost efficiency',
+        scenarios: {
+          stockRises: 'If stock rises above higher strike ($490), you keep the full net credit ($2). This is max profit.',
+          stockFalls: 'If stock falls below lower strike ($480), you hit max loss. Loss = (strike - strike2) - net credit = $10 - $2 = $8.',
+          stockStaysSame: 'If stock stays above higher strike, you keep the premium. Ideal scenario - stock stays flat or rises slightly.',
+        },
+        example: {
+          stock: 'NVDA',
+          stockPrice: 500,
+          strike: 490,
+          premium: 3,
+          strike2: 480,
+          premium2: 1,
+        },
+        calculateProfit: (stockPrice: number, params: any) => {
+          const { strike, premium, strike2, premium2 } = params
+          const netCredit = premium - premium2
+          if (stockPrice >= strike) return netCredit
+          if (stockPrice <= strike2) return strike2 - strike + netCredit
+          return strike - stockPrice + netCredit
+        },
       },
     ],
   },
@@ -84,6 +192,26 @@ const strategies = [
         reward: 'Limited',
         description: 'Buy higher strike put, sell lower strike put. Same expiration.',
         bestFor: 'Moderate bearish moves',
+        scenarios: {
+          stockRises: 'If stock rises above higher strike ($485), you lose the net premium paid ($4). Both puts expire worthless.',
+          stockFalls: 'If stock falls below lower strike ($475), you reach max profit. Profit = (strike - strike2) - net cost = $10 - $4 = $6.',
+          stockStaysSame: 'If stock stays between strikes, you lose net premium. Need stock below higher strike to profit.',
+        },
+        example: {
+          stock: 'META',
+          stockPrice: 490,
+          strike: 485,
+          premium: 8,
+          strike2: 475,
+          premium2: 4,
+        },
+        calculateProfit: (stockPrice: number, params: any) => {
+          const { strike, premium, strike2, premium2 } = params
+          const netCost = premium - premium2
+          if (stockPrice >= strike) return -netCost
+          if (stockPrice <= strike2) return strike - strike2 - netCost
+          return strike - stockPrice - netCost
+        },
       },
       {
         name: 'Bear Call Spread',
@@ -92,6 +220,26 @@ const strategies = [
         reward: 'Limited',
         description: 'Sell lower strike call, buy higher strike call. Collect premium.',
         bestFor: 'Bearish with limited move expected',
+        scenarios: {
+          stockRises: 'If stock rises above higher strike ($165), you hit max loss. Loss = (strike2 - strike) - net credit = $10 - $3 = $7.',
+          stockFalls: 'If stock falls below lower strike ($155), you keep the full net credit ($3). This is max profit.',
+          stockStaysSame: 'If stock stays below lower strike, you keep the premium. Ideal scenario - stock stays flat or falls slightly.',
+        },
+        example: {
+          stock: 'AMZN',
+          stockPrice: 150,
+          strike: 155,
+          premium: 5,
+          strike2: 165,
+          premium2: 2,
+        },
+        calculateProfit: (stockPrice: number, params: any) => {
+          const { strike, premium, strike2, premium2 } = params
+          const netCredit = premium - premium2
+          if (stockPrice <= strike) return netCredit
+          if (stockPrice >= strike2) return strike - strike2 + netCredit
+          return strike - stockPrice + netCredit
+        },
       },
     ],
   },
@@ -106,6 +254,27 @@ const strategies = [
         reward: 'Limited',
         description: 'Sell put spread and call spread. Profit if stock stays in range.',
         bestFor: 'Low volatility, range-bound markets',
+        scenarios: {
+          stockRises: 'If stock rises above upper range, you start losing money. Max loss if stock goes significantly above upper strike.',
+          stockFalls: 'If stock falls below lower range, you start losing money. Max loss if stock goes significantly below lower strike.',
+          stockStaysSame: 'If stock stays within the range (between $445-$455), you keep the net premium collected. This is the ideal scenario.',
+        },
+        example: {
+          stock: 'SPY',
+          stockPrice: 450,
+          strike: 445,
+          premium: 2,
+          strike2: 455,
+          premium2: 2,
+        },
+        calculateProfit: (stockPrice: number, params: any) => {
+          const { strike, premium, strike2 } = params
+          const netCredit = premium * 2 // Simplified
+          if (stockPrice >= strike && stockPrice <= strike2) return netCredit
+          if (stockPrice < strike - 5) return netCredit - (strike - 5 - stockPrice)
+          if (stockPrice > strike2 + 5) return netCredit - (stockPrice - strike2 - 5)
+          return netCredit
+        },
       },
       {
         name: 'Iron Butterfly',
@@ -114,14 +283,27 @@ const strategies = [
         reward: 'Limited',
         description: 'Sell at-the-money call and put, buy out-of-the-money options.',
         bestFor: 'Very low volatility, stock at strike',
-      },
-      {
-        name: 'Calendar Spread',
-        direction: 'Neutral to Slightly Directional',
-        risk: 'Limited',
-        reward: 'Limited',
-        description: 'Sell short-term option, buy longer-term option. Same strike.',
-        bestFor: 'Time decay plays, volatility changes',
+        scenarios: {
+          stockRises: 'If stock rises significantly above strike ($380), you lose money. Max loss if stock moves far beyond protective strikes.',
+          stockFalls: 'If stock falls significantly below strike, you lose money. Max loss if stock moves far beyond protective strikes.',
+          stockStaysSame: 'If stock stays exactly at strike ($380), you keep maximum premium collected. This is the ideal scenario - stock stays perfectly at strike.',
+        },
+        example: {
+          stock: 'QQQ',
+          stockPrice: 380,
+          strike: 380,
+          premium: 3,
+          strike2: 390,
+          premium2: 1,
+        },
+        calculateProfit: (stockPrice: number, params: any) => {
+          const { strike, premium, strike2, premium2 } = params
+          const netCredit = premium * 2 - premium2 * 2
+          if (stockPrice === strike) return netCredit
+          if (stockPrice < strike - 10) return netCredit - (strike - 10 - stockPrice)
+          if (stockPrice > strike + 10) return netCredit - (stockPrice - strike - 10)
+          return netCredit - Math.abs(stockPrice - strike)
+        },
       },
     ],
   },
@@ -136,6 +318,23 @@ const strategies = [
         reward: 'Unlimited Both Ways',
         description: 'Buy call and put at same strike. Profit if stock moves significantly either way.',
         bestFor: 'High volatility expected, uncertain direction',
+        scenarios: {
+          stockRises: 'If stock rises significantly above strike + premium ($260), you profit. The higher it goes, the more you profit. Unlimited upside.',
+          stockFalls: 'If stock falls significantly below strike - premium ($240), you profit. The lower it goes, the more you profit. Can profit down to $0.',
+          stockStaysSame: 'If stock stays near strike ($250), you lose both premiums ($10). This is the worst scenario - need big move to profit.',
+        },
+        example: {
+          stock: 'TSLA',
+          stockPrice: 250,
+          strike: 250,
+          premium: 10,
+        },
+        calculateProfit: (stockPrice: number, params: any) => {
+          const { strike, premium } = params
+          const callProfit = stockPrice > strike ? stockPrice - strike - premium : -premium
+          const putProfit = stockPrice < strike ? strike - stockPrice - premium : -premium
+          return callProfit + putProfit
+        },
       },
       {
         name: 'Long Strangle',
@@ -144,14 +343,25 @@ const strategies = [
         reward: 'Unlimited',
         description: 'Buy out-of-the-money call and put. Cheaper than straddle.',
         bestFor: 'High volatility, cheaper than straddle',
-      },
-      {
-        name: 'Short Strangle',
-        direction: 'Low Volatility',
-        risk: 'Unlimited Both Ways',
-        reward: 'Limited',
-        description: 'Sell out-of-the-money call and put. Profit if stock stays in range.',
-        bestFor: 'Range-bound, collecting premium',
+        scenarios: {
+          stockRises: 'If stock rises significantly above call strike ($520), you profit. The higher it goes, the more you profit. Unlimited upside.',
+          stockFalls: 'If stock falls significantly below put strike ($480), you profit. The lower it goes, the more you profit. Can profit down to $0.',
+          stockStaysSame: 'If stock stays between the strikes ($480-$520), you lose both premiums ($8). Need bigger move than straddle to profit, but cheaper to enter.',
+        },
+        example: {
+          stock: 'NVDA',
+          stockPrice: 500,
+          strike: 520,
+          premium: 4,
+          strike2: 480,
+          premium2: 4,
+        },
+        calculateProfit: (stockPrice: number, params: any) => {
+          const { strike, premium, strike2, premium2 } = params
+          const callProfit = stockPrice > strike ? stockPrice - strike - premium : -premium
+          const putProfit = stockPrice < strike2 ? strike2 - stockPrice - premium2 : -premium2
+          return callProfit + putProfit
+        },
       },
     ],
   },
@@ -161,7 +371,7 @@ export default function StrategiesPage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
 
-  const filteredCategories = strategies.filter((category) => {
+  const filteredCategories = strategiesData.filter((category) => {
     if (selectedCategory && category.category !== selectedCategory) return false
     if (searchTerm) {
       return category.strategies.some(
@@ -173,42 +383,38 @@ export default function StrategiesPage() {
     return true
   })
 
-  const getDirectionColor = (direction: string) => {
-    if (direction.includes('Bullish')) return 'text-green-600 dark:text-green-400'
-    if (direction.includes('Bearish')) return 'text-red-600 dark:text-red-400'
-    if (direction.includes('Neutral')) return 'text-blue-600 dark:text-blue-400'
-    if (direction.includes('Volatile')) return 'text-purple-600 dark:text-purple-400'
-    return 'text-slate-600 dark:text-slate-400'
-  }
-
   return (
-    <main className="h-full bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 overflow-auto">
+    <main className="h-full bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       <Dashboard>
-        <div className="p-6 max-w-7xl mx-auto">
+        <div className="h-full overflow-y-auto w-full">
+          <div className="p-6 max-w-7xl mx-auto">
           <div className="mb-8">
             <h1 className="text-4xl font-bold text-slate-900 dark:text-white mb-4">
               Options Trading Strategies
             </h1>
             <p className="text-lg text-slate-600 dark:text-slate-400 mb-6">
-              Comprehensive guide to options trading strategies with risk profiles, use cases, and examples.
+              Interactive guide with profit/loss graphs, calculators, and examples for each strategy.
             </p>
 
             {/* Search and Filter */}
             <div className="flex flex-col sm:flex-row gap-4 mb-6">
-              <input
-                type="text"
-                placeholder="Search strategies..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="flex-1 px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              />
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Search strategies..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                />
+              </div>
               <select
                 value={selectedCategory || ''}
                 onChange={(e) => setSelectedCategory(e.target.value || null)}
                 className="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               >
                 <option value="">All Categories</option>
-                {strategies.map((cat) => (
+                {strategiesData.map((cat) => (
                   <option key={cat.category} value={cat.category}>
                     {cat.category}
                   </option>
@@ -217,7 +423,7 @@ export default function StrategiesPage() {
             </div>
           </div>
 
-          {/* Strategies Grid */}
+          {/* Strategies List */}
           <div className="space-y-8">
             {filteredCategories.map((category) => {
               const Icon = category.icon
@@ -241,58 +447,9 @@ export default function StrategiesPage() {
                     </h2>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="space-y-4">
                     {filteredStrategies.map((strategy) => (
-                      <div
-                        key={strategy.name}
-                        className="border border-slate-200 dark:border-slate-700 rounded-lg p-4 hover:shadow-md transition-shadow"
-                      >
-                        <div className="flex items-start justify-between mb-3">
-                          <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
-                            {strategy.name}
-                          </h3>
-                        </div>
-
-                        <div className="space-y-2 mb-3">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                              Direction:
-                            </span>
-                            <span className={`text-xs font-semibold ${getDirectionColor(strategy.direction)}`}>
-                              {strategy.direction}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                              Risk:
-                            </span>
-                            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                              {strategy.risk}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                              Reward:
-                            </span>
-                            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                              {strategy.reward}
-                            </span>
-                          </div>
-                        </div>
-
-                        <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">
-                          {strategy.description}
-                        </p>
-
-                        <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700">
-                          <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                            Best for:
-                          </span>
-                          <p className="text-xs text-slate-700 dark:text-slate-300 mt-1">
-                            {strategy.bestFor}
-                          </p>
-                        </div>
-                      </div>
+                      <StrategyCard key={strategy.name} strategy={strategy} />
                     ))}
                   </div>
                 </div>
@@ -336,9 +493,9 @@ export default function StrategiesPage() {
               </li>
             </ul>
           </div>
+          </div>
         </div>
       </Dashboard>
     </main>
   )
 }
-

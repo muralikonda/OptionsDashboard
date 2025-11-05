@@ -14,6 +14,7 @@ export default function Home() {
   const [filteredStocks, setFilteredStocks] = useState<Stock[]>([])
   const [filteredOptions, setFilteredOptions] = useState<Option[]>([])
   const [filters, setFilters] = useState<FilterCriteria>({
+    searchText: '',
     minPrice: '',
     maxPrice: '',
     minVolume: '',
@@ -64,6 +65,13 @@ export default function Home() {
     // Filter stocks
     let filtered = [...stocks]
     
+    if (filters.searchText) {
+      const searchLower = filters.searchText.toLowerCase()
+      filtered = filtered.filter(s => 
+        s.symbol.toLowerCase().includes(searchLower) || 
+        s.name.toLowerCase().includes(searchLower)
+      )
+    }
     if (filters.minPrice) {
       filtered = filtered.filter(s => s.price >= parseFloat(filters.minPrice))
     }
@@ -160,7 +168,7 @@ export default function Home() {
                 ) : (
                   <>
                     {selectedTab === 'stocks' && (
-                      <StockTable stocks={filteredStocks} />
+                      <StockTable stocks={filteredStocks} options={options} />
                     )}
                     {selectedTab === 'options' && (
                       <OptionsTable options={filteredOptions} />
