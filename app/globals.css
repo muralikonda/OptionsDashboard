@@ -73,3 +73,15 @@ body {
   scroll-behavior: smooth;
 }
 
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  button, a, [role="button"] {
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+  }
+}
+

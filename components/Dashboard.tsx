@@ -14,43 +14,44 @@ export default function Dashboard({ children }: DashboardProps) {
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
-      <header className="flex-shrink-0 bg-white dark:bg-slate-800 shadow-sm border-b border-slate-200 dark:border-slate-700">
+      <header className="flex-shrink-0 bg-gradient-to-r from-primary-600 via-primary-500 to-primary-600 dark:from-slate-800 dark:via-slate-800 dark:to-slate-800 shadow-xl border-b-2 border-primary-700 dark:border-slate-700">
         <div className="w-full px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="bg-primary-600 p-1.5 sm:p-2 rounded-lg">
-                <TrendingUp className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="bg-white/20 backdrop-blur-sm p-2 sm:p-2.5 rounded-xl shadow-lg">
+                <TrendingUp className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
               </div>
               <div>
-                <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-slate-900 dark:text-white">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-white drop-shadow-lg">
                   Options Dashboard
                 </h1>
-                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
-                  Screen stocks and options with advanced filters
+                <p className="text-xs sm:text-sm text-primary-100 dark:text-slate-300 font-medium">
+                  📊 Screen stocks and options with advanced filters & pattern analysis
                 </p>
               </div>
             </div>
-            <nav className="flex items-center gap-4">
+            <nav className="flex items-center gap-2 sm:gap-3">
               <Link
                 href="/"
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 flex items-center gap-1.5 ${
                   pathname === '/'
-                    ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300'
-                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'
+                    ? 'bg-white text-primary-600 shadow-lg scale-105'
+                    : 'bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm'
                 }`}
               >
-                Dashboard
+                <span className="hidden sm:inline">📈 Dashboard</span>
+                <span className="sm:hidden">📈</span>
               </Link>
               <Link
                 href="/strategies"
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
+                className={`px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 flex items-center gap-1.5 ${
                   pathname === '/strategies'
-                    ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300'
-                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'
+                    ? 'bg-white text-primary-600 shadow-lg scale-105'
+                    : 'bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm'
                 }`}
               >
                 <BookOpen className="w-4 h-4" />
-                Strategies
+                <span className="hidden sm:inline">Strategies</span>
               </Link>
             </nav>
           </div>

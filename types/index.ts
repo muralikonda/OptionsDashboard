@@ -41,5 +41,8 @@ export interface FilterCriteria {
   maxIV: string
   minDelta: string
   maxDelta: string
+  chartPattern?: string
+  priceTrend?: 'uptrend' | 'downtrend' | 'sideways'
+  volatility?: 'low' | 'medium' | 'high'
 }
 

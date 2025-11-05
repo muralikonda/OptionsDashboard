@@ -107,8 +107,8 @@ export default function StrategyCard({ strategy }: StrategyCardProps) {
 
       {/* Expanded Content */}
       {isExpanded && (
-        <div className="p-6 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="p-3 sm:p-4 lg:p-6 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             {/* Left Column - Info and Example */}
             <div className="space-y-4">
               <div>
@@ -274,12 +274,12 @@ export default function StrategyCard({ strategy }: StrategyCardProps) {
 
             {/* Right Column - Chart */}
             <div>
-              <h4 className="font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+              <h4 className="font-semibold text-slate-900 dark:text-white mb-3 sm:mb-4 flex items-center gap-2 text-sm sm:text-base">
                 <TrendingUp className="w-4 h-4" />
                 Profit/Loss Chart
               </h4>
-              <div className="bg-gradient-to-br from-slate-50 to-white dark:from-slate-900/50 dark:to-slate-800/50 rounded-xl p-6 border border-slate-200 dark:border-slate-700 shadow-lg">
-                <ResponsiveContainer width="100%" height={350}>
+              <div className="bg-gradient-to-br from-slate-50 to-white dark:from-slate-900/50 dark:to-slate-800/50 rounded-xl p-3 sm:p-4 lg:p-6 border border-slate-200 dark:border-slate-700 shadow-lg">
+                <ResponsiveContainer width="100%" height={250} className="sm:h-[300px] lg:h-[350px]">
                   <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                     <defs>
                       <linearGradient id={profitGradientId} x1="0" y1="0" x2="0" y2="1">

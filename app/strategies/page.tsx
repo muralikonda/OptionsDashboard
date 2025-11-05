@@ -387,31 +387,31 @@ export default function StrategiesPage() {
     <main className="h-full bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       <Dashboard>
         <div className="h-full overflow-y-auto w-full">
-          <div className="p-6 max-w-7xl mx-auto">
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold text-slate-900 dark:text-white mb-4">
+          <div className="p-3 sm:p-4 lg:p-6 max-w-7xl mx-auto">
+          <div className="mb-4 sm:mb-6 lg:mb-8">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 dark:text-white mb-2 sm:mb-4">
               Options Trading Strategies
             </h1>
-            <p className="text-lg text-slate-600 dark:text-slate-400 mb-6">
+            <p className="text-sm sm:text-base lg:text-lg text-slate-600 dark:text-slate-400 mb-4 sm:mb-6">
               Interactive guide with profit/loss graphs, calculators, and examples for each strategy.
             </p>
 
             {/* Search and Filter */}
-            <div className="flex flex-col sm:flex-row gap-4 mb-6">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-4 sm:mb-6">
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-slate-400" />
                 <input
                   type="text"
                   placeholder="Search strategies..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  className="w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2 text-sm sm:text-base border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 />
               </div>
               <select
                 value={selectedCategory || ''}
                 onChange={(e) => setSelectedCategory(e.target.value || null)}
-                className="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="px-3 sm:px-4 py-2 text-sm sm:text-base border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               >
                 <option value="">All Categories</option>
                 {strategiesData.map((cat) => (
@@ -437,12 +437,12 @@ export default function StrategiesPage() {
               if (filteredStrategies.length === 0) return null
 
               return (
-                <div key={category.category} className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="bg-primary-100 dark:bg-primary-900/30 p-2 rounded-lg">
-                      <Icon className="w-6 h-6 text-primary-600 dark:text-primary-400" />
+                <div key={category.category} className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-4 sm:p-6 mb-4 sm:mb-6 lg:mb-8">
+                  <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+                    <div className="bg-primary-100 dark:bg-primary-900/30 p-1.5 sm:p-2 rounded-lg">
+                      <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-primary-600 dark:text-primary-400" />
                     </div>
-                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+                    <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
                       {category.category}
                     </h2>
                   </div>
